@@ -19,5 +19,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-select cons('abc', cons('ggg', NULL));
+CREATE OR REPLACE FUNCTION head(INTEGER)
+RETURNS TEXT AS $$
+DECLARE
+  thisKey ALIAS FOR $1;
+BEGIN
+  RETURN (SELECT "value" FROM "__cons" WHERE "thisKey" = thisKey);
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+select cons('abc', cons('ggg', cons('zzz', NULL)));
 select * from "__cons";
+select head(2);
