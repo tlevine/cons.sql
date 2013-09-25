@@ -28,8 +28,24 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION last(INTEGER)
+RETURNS TEXT AS $$
+DECLARE
+  thisKey ALIAS FOR $1;
+  nextKey INTEGER := (SELECT "nextKey" FROM "__cons" WHERE "thisKey" = thisKey);
+BEGIN
+  IF nextKey IS NULL THEN
+    RETURN (SELECT "value" FROM "__cons" WHERE "thisKey" = thisKey);
+  ELSE
+    RETURN (SELECT 'aou');
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
 
 
 select cons('abc', cons('ggg', cons('zzz', NULL)));
 select * from "__cons";
 select head(2);
+select last(0);
+select last(2);
