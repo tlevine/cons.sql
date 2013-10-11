@@ -19,17 +19,30 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREAT
-
 CREATE OR REPLACE FUNCTION head(INTEGER)
 RETURNS TEXT AS $$
 DECLARE
   thisKey ALIAS FOR $1;
 BEGIN
   RETURN (
-    SELECT "value" FROM "__cons" WHERE "thisKey" = thisKey
-    UNION
-    SELECT head(SELECT "nextKey" FROM "__cons" WHERE "thisKey" = thisKey)
+    SELECT _head(' ', thisKey)
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+-- DROP TYPE IF EXISTS NECK;
+CREATE TYPE NECK AS (values TEXT, nextKey INTEGER);
+
+CREATE OR REPLACE FUNCTION _head(TEXT, INTEGER)
+RETURNS NECK AS $$
+DECLARE
+  prevValues ALIAS FOR $1;
+  thisKey ALIAS FOR $2;
+BEGIN
+  RETURN (
+    SELECT
+      "prevValues" || ' ' || (SELECT "value" FROM "__cons" WHERE "thisKey" = thisKey),
+      _head(SELECT "nextKey" FROM "__cons" WHERE "thisKey" = thisKey);
   );
 END;
 $$ LANGUAGE plpgsql;
@@ -50,8 +63,8 @@ $$ LANGUAGE plpgsql;
 
 
 
-select cons('abc', cons('ggg', cons('zzz', NULL)));
-select * from "__cons";
-select head(2);
-select last(0);
-select last(2);
+-- select cons('abc', cons('ggg', cons('zzz', NULL)));
+-- select * from "__cons";
+-- select head(2);
+-- select last(0);
+-- select last(2);
