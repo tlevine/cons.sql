@@ -19,12 +19,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREAT
+
 CREATE OR REPLACE FUNCTION head(INTEGER)
 RETURNS TEXT AS $$
 DECLARE
   thisKey ALIAS FOR $1;
 BEGIN
-  RETURN (SELECT "value" FROM "__cons" WHERE "thisKey" = thisKey);
+  RETURN (
+    SELECT "value" FROM "__cons" WHERE "thisKey" = thisKey
+    UNION
+    SELECT head(SELECT "nextKey" FROM "__cons" WHERE "thisKey" = thisKey)
+  );
 END;
 $$ LANGUAGE plpgsql;
 
