@@ -130,7 +130,7 @@ DROP FUNCTION IF EXISTS toColumn(INTEGER);
 -- http://stackoverflow.com/questions/4279876/plpgsql-function-returns-table
 CREATE OR REPLACE FUNCTION toColumn(key INTEGER)
 RETURNS TABLE (keys INTEGER) AS $$
-  SELECT "thisKey" FROM "__memory"; --WHERE "thisKey" = $1
+  SELECT "thisKey" FROM "__memory" WHERE "thisKey" = $1
 --UNION ALL
 --  SELECT "value" FROM "__memory" WHERE "thisKey" IN (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = $1);
 $$ LANGUAGE SQL;
