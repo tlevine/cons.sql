@@ -40,7 +40,7 @@ BEGIN
   INSERT INTO "__memory" 
     SELECT cons(
       (SELECT "value" FROM "__memory" WHERE "thisKey" = key),
-      (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = key),
+      (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = key)
     )
   ;
   RETURN LASTVAL();
