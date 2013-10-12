@@ -25,12 +25,22 @@ select cons('abc', cons('ggg', cons('zzz', NULL)));
 -- select "a"."value","b"."value" from __cons as a join __cons as b on "a"."nextKey" = "b"."thisKey" where "a"."thisKey" = 2;
 
 
-WITH list(startKey) AS (
-  SELECT  "this"."value"
-  FROM    "__cons" as this
-  JOIN    "__cons" as next
-  ON      "this"."nextKey" = "next"."thisKey"
-  -- WHERE   "this"."thisKey" = "startKey"
-)
-SELECT  *
-FROM    list;
+CREATE OR REPLACE FUNCTION list(INTEGER)
+RETURNS TEXT AS $$
+DECLARE
+  startKey ALIAS FOR $1;
+BEGIN
+RETURN
+  WITH list AS (
+      SELECT  "this"."value"
+      FROM    "__cons" as this
+      JOIN    "__cons" as next
+      ON      "this"."nextKey" = "next"."thisKey"
+      WHERE   "this"."thisKey" = startKey
+  )
+  SELECT  "value"
+  FROM    list;
+END;
+$$ LANGUAGE plpgsql;
+
+list(2)
