@@ -64,21 +64,39 @@ $$ LANGUAGE plpgsql;
 -- END;
 -- $$ LANGUAGE plpgsql;
 
-DROP FUNCTION IF EXISTS list(INTEGER);
-CREATE OR REPLACE FUNCTION list(INTEGER)
-RETURNS TABLE (value TEXT) AS $$
-    SELECT "value"
-    FROM "__memory"
-    WHERE "thisKey" = $1 AND "nextKey" IS NOT NULL
-  UNION ALL
-    SELECT *
-    FROM list(0)
-$$ LANGUAGE SQL;
+-- DROP FUNCTION take(TAKING);
+-- CREATE TYPE TAKING (INTEGER, INTEGER);
+-- CREATE OR REPLACE FUNCTION take(TAKING)
+-- RETURNS TAKING AS $$
+-- DECLARE
+--   inputs ALIAS FOR $1;
+--   result TAKING;
+-- BEGIN
+--   SELECT cons( (SELECT "value" FROM "__memory" WHERE "thisKey" = key),
+--                (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = key))
+--   INTO result.key;
+--   RETURN (result, toGo - 1);
+-- END;
+-- $$ LANGUAGE plpgsql;
+
+-- DROP FUNCTION IF EXISTS list(INTEGER);
+-- CREATE OR REPLACE FUNCTION list(INTEGER)
+-- RETURNS TABLE (value TEXT) AS $$
+--     SELECT "value"
+--     FROM "__memory"
+--     WHERE "thisKey" = $1 AND "nextKey" IS NOT NULL
+--   UNION ALL
+--     SELECT *
+--     FROM list(0)
+-- $$ LANGUAGE SQL;
 
 SELECT cons('a',cons('b',cons('c',cons('d',cons('e', NULL)))));
 SELECT head(4);
 SELECT tail(5);
-SELECT * FROM list(1);
-SELECT * FROM list(2);
-SELECT * FROM list(3);
-SELECT * FROM list(4);
+-- SELECT take(5, 2);
+
+
+-- SELECT * FROM list(1);
+-- SELECT * FROM list(2);
+-- SELECT * FROM list(3);
+-- SELECT * FROM list(4);
