@@ -64,6 +64,13 @@ $$ LANGUAGE plpgsql;
 -- END;
 -- $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION list(INTEGER)
+RETURNS TABLE (value TEXT) AS $$
+  SELECT "value" FROM "__memory"
+  WHERE "thisKey" = $1;
+$$ LANGUAGE SQL;
+
 SELECT cons('a',cons('b',cons('c',cons('d',cons('e', NULL)))));
 SELECT head(4);
 SELECT tail(5);
+SELECT * FROM list(3);
