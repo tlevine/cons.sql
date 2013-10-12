@@ -19,49 +19,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION head(INTEGER)
-RETURNS TEXT AS $$
-DECLARE
-  thisKey ALIAS FOR $1;
-BEGIN
-  RETURN (
-    SELECT _head(' ', thisKey)
-  );
-END;
-$$ LANGUAGE plpgsql;
-
--- CREATE TYPE EXISTS NECK AS (values TEXT, nextKey INTEGER);
-
-CREATE OR REPLACE FUNCTION _head(TEXT, INTEGER)
-RETURNS NECK AS $$
-DECLARE
-  prevValues ALIAS FOR $1;
-  thisKey ALIAS FOR $2;
-BEGIN
-  RETURN
-    (SELECT prevValues || ' ' || (SELECT "value" FROM "__cons" WHERE "thisKey" = thisKey)),
-    head((SELECT "nextKey" FROM "__cons" WHERE "thisKey" = thisKey))
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE FUNCTION last(INTEGER)
-RETURNS TEXT AS $$
-DECLARE
-  thisKey ALIAS FOR $1;
-  nextKey INTEGER := (SELECT "nextKey" FROM "__cons" WHERE "thisKey" = thisKey);
-BEGIN
-  IF nextKey IS NULL THEN
-    RETURN (SELECT "value" FROM "__cons" WHERE "thisKey" = thisKey);
-  ELSE
-    RETURN (SELECT 'aou');
-  END IF;
-END;
-$$ LANGUAGE plpgsql;
 
 
+select cons('abc', cons('ggg', cons('zzz', NULL)));
+-- select "a"."value","b"."value" from __cons as a join __cons as b on "a"."nextKey" = "b"."thisKey" where "a"."thisKey" = 2;
 
--- select cons('abc', cons('ggg', cons('zzz', NULL)));
--- select * from "__cons";
- select head(2);
--- select last(0);
--- select last(2);
+WITH list(startKey) AS (
+  SELECT  "this"."value"
+  FROM    "__cons" as this
+  JOIN    "__cons" as next
+  ON      "this"."nextKey" = "next"."thisKey"
+  WHERE   "this"."thisKey" = startKey
+)
+SELECT  *
+FROM    list;
