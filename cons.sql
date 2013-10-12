@@ -1,4 +1,4 @@
--- DROP TABLE IF EXISTS "__memory";
+DROP TABLE IF EXISTS "__memory";
 CREATE TABLE IF NOT EXISTS "__memory" (
   "thisKey" SERIAL PRIMARY KEY NOT NULL,
   "value" TEXT NOT NULL,
@@ -25,10 +25,10 @@ DECLARE
   key ALIAS FOR $1;
 BEGIN
   INSERT INTO "__memory" 
-  SELECT "value", NULL
-  FROM "__memory"
-  WHERE "thisKey" = key
-RETURN LASTVAL();
+    SELECT "value", NULL
+    FROM "__memory"
+    WHERE "thisKey" = key;
+  RETURN LASTVAL();
 END;
 $$ LANGUAGE plpgsql;
 
@@ -38,11 +38,12 @@ DECLARE
   key ALIAS FOR $1;
 BEGIN
   INSERT INTO "__memory" 
-  SELECT cons(
-    (SELECT "value" FROM "__memory" WHERE "thisKey" = key),
-    (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = key),
-  )
-RETURN LASTVAL();
+    SELECT cons(
+      (SELECT "value" FROM "__memory" WHERE "thisKey" = key),
+      (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = key),
+    )
+  ;
+  RETURN LASTVAL();
 END;
 $$ LANGUAGE plpgsql;
 
@@ -63,3 +64,6 @@ $$ LANGUAGE plpgsql;
 -- RETURN LASTVAL();
 -- END;
 -- $$ LANGUAGE plpgsql;
+
+SELECT cons('a',cons('b',cons('c',cons('d',cons('e', NULL)))));
+--SELECT head(4);
