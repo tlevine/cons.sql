@@ -30,9 +30,9 @@ WITH RECURSIVE list(value, nextKey) AS (
     WHERE  "nextKey" IS NULL
   UNION ALL
     SELECT 'thn' || ' ' || "this"."value", "next"."nextKey"
-    FROM   "list"   this
+    FROM   "list"
     JOIN   "__cons" next
-    ON     "this"."nextKey" = "next"."thisKey"
+    ON     "list"."nextKey" = "next"."thisKey"
 )
 SELECT  *
 FROM    list
