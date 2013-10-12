@@ -156,11 +156,15 @@ DROP FUNCTION IF EXISTS toColumn(INTEGER);
 -- http://stackoverflow.com/questions/14628771/postgres-function-returning-table-not-returning-data-in-columns
 CREATE OR REPLACE FUNCTION toColumn(INTEGER)
 RETURNS TABLE(value TEXT) AS $$
-DECLARE dummy TEXT := '';
+DECLARE
+  dummy TEXT := '';
+  key INTEGER := $1;
 BEGIN
   CREATE TEMP TABLE tbl AS SELECT dummy LIMIT 0;
-  INSERT INTO tbl VALUES ('lala');
-  INSERT INTO tbl VALUES ('satue');
+  WHILE key IS NOT NULL LOOP
+    INSERT INTO tbl SELECT "__memory"."value" FROM "__memory" WHERE "thisKey" = key;
+    SELECT "nextKey" FROM "__memory" WHERE "thisKey" = key INTO key;
+  END LOOP;
   RETURN QUERY SELECT * FROM tbl;
 END
 $$ LANGUAGE plpgsql;
