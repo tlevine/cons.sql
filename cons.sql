@@ -140,16 +140,11 @@ $$ LANGUAGE SQL;
 -- END;
 -- $$ LANGUAGE plpgsql;
 
-SELECT cons('a',cons('b',cons('c',cons('d',cons('e', NULL)))));
-SELECT head(4);
-SELECT tail(5);
-SELECT drop(5, 2);
-SELECT init(4);
-SELECT init(4);
-SELECT last(4);
+-- SELECT cons('a',cons('b',cons('c',cons('d',cons('e', NULL)))));
+-- SELECT head(4);
+-- SELECT tail(5);
+-- SELECT drop(5, 2);
+-- SELECT init(4);
+-- SELECT init(4);
+-- SELECT last(4);
 SELECT toColumn(10);
-
--- SELECT * FROM list(1);
--- SELECT * FROM list(2);
--- SELECT * FROM list(3);
--- SELECT * FROM list(4);
