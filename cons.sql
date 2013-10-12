@@ -64,17 +64,16 @@ $$ LANGUAGE plpgsql;
 -- END;
 -- $$ LANGUAGE plpgsql;
 
+DROP FUNCTION IF EXISTS list(INTEGER);
 CREATE OR REPLACE FUNCTION list(INTEGER)
-RETURNS TABLE (value TEXT) AS $$
-    SELECT "value"
+RETURNS TABLE (thisKey INTEGER, value TEXT, nextKey INTEGER) AS $$
+    SELECT "thisKey", "value", "nextKey"
     FROM "__memory"
-    WHERE "thisKey" = $1
-  UNION ALL
-    SELECT "next"."value"
-    FROM "__memory" AS "this"
-    JOIN "__memory" AS "next"
-    ON "this"."nextKey" = "next"."thisKey"
-    WHERE "this"."thisKey" = $1
+    WHERE "thisKey" = $1 AND "nextKey" IS NOT NULL
+--UNION ALL
+--  SELECT "thisKey", "value", "nextKey"
+--  FROM list(0)
+--  WHERE "thisKey" = (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = $1);
 $$ LANGUAGE SQL;
 
 SELECT cons('a',cons('b',cons('c',cons('d',cons('e', NULL)))));
