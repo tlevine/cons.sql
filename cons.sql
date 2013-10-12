@@ -38,11 +38,9 @@ DECLARE
   prevValues ALIAS FOR $1;
   thisKey ALIAS FOR $2;
 BEGIN
-  RETURN (
-    SELECT
-      prevValues || ' ' || (SELECT "value" FROM "__cons" WHERE "thisKey" = thisKey),
-      head((SELECT "nextKey" FROM "__cons" WHERE "thisKey" = thisKey))
-  );
+  RETURN
+    (SELECT prevValues || ' ' || (SELECT "value" FROM "__cons" WHERE "thisKey" = thisKey)),
+    head((SELECT "nextKey" FROM "__cons" WHERE "thisKey" = thisKey))
 END;
 $$ LANGUAGE plpgsql;
 
