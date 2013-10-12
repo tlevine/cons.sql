@@ -24,7 +24,7 @@ RETURNS INTEGER AS $$
 DECLARE
   key ALIAS FOR $1;
 BEGIN
-  INSERT INTO "__memory" 
+  INSERT INTO "__memory" ("value","nextKey")
     SELECT "value", NULL
     FROM "__memory"
     WHERE "thisKey" = key;
@@ -32,20 +32,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION tail(INTEGER)
-RETURNS INTEGER AS $$
-DECLARE
-  key ALIAS FOR $1;
-BEGIN
-  INSERT INTO "__memory" 
-    SELECT cons(
-      (SELECT "value" FROM "__memory" WHERE "thisKey" = key),
-      (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = key)
-    )
-  ;
-  RETURN LASTVAL();
-END;
-$$ LANGUAGE plpgsql;
+-- CREATE OR REPLACE FUNCTION tail(INTEGER)
+-- RETURNS INTEGER AS $$
+-- DECLARE
+--   key ALIAS FOR $1;
+-- BEGIN
+--   SELECT cons(
+--     (SELECT "value" FROM "__memory" WHERE "thisKey" = key),
+--     (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = key)
+--   );
+--   RETURN LASTVAL();
+-- END;
+-- $$ LANGUAGE plpgsql;
 
 -- CREATE OR REPLACE FUNCTION init(INTEGER)
 -- RETURNS INTEGER AS $$
@@ -66,4 +64,4 @@ $$ LANGUAGE plpgsql;
 -- $$ LANGUAGE plpgsql;
 
 SELECT cons('a',cons('b',cons('c',cons('d',cons('e', NULL)))));
---SELECT head(4);
+SELECT head(4);
