@@ -90,10 +90,25 @@ $$ LANGUAGE plpgsql;
 --     FROM list(0)
 -- $$ LANGUAGE SQL;
 
+CREATE OR REPLACE FUNCTION drop(INTEGER, INTEGER)
+RETURNS INTEGER AS $$
+DECLARE
+  key ALIAS FOR $1;
+  toDrop ALIAS FOR $2;
+BEGIN
+  IF toDrop > 0
+  THEN
+    RETURN drop((SELECT "nextKey" FROM "__memory" WHERE "thisKey" = key), toDrop - 1);
+  ELSE
+    RETURN key;
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
 SELECT cons('a',cons('b',cons('c',cons('d',cons('e', NULL)))));
 SELECT head(4);
 SELECT tail(5);
--- SELECT take(5, 2);
+SELECT drop(5, 2);
 
 
 -- SELECT * FROM list(1);
