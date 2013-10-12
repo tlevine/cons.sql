@@ -25,11 +25,11 @@ select cons('hnth', cons('rrrr', cons('abc', cons('ggg', cons('zzz', NULL)))));
 -- select "a"."value","b"."value" from __cons as a join __cons as b on "a"."nextKey" = "b"."thisKey" where "a"."thisKey" = 2;
 
 WITH list AS (
-  SELECT  "this"."value"
-  FROM    "__cons" AS this
-  JOIN    "__cons" AS next
-  ON      "this"."nextKey" = "next"."thisKey"
-  WHERE   "this"."thisKey" = 3
+  SELECT 'thn' || ' ' || "this"."value" AS values, "next"."nextKey"
+  FROM   "__cons" AS this
+  JOIN   "__cons" AS next
+  ON     "this"."nextKey" = "next"."thisKey"
+  WHERE  "this"."thisKey" = 3
 )
 SELECT  *
 FROM    list
