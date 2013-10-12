@@ -70,17 +70,6 @@ $$ LANGUAGE plpgsql;
 -- END;
 -- $$ LANGUAGE plpgsql;
 
--- DROP FUNCTION IF EXISTS list(INTEGER);
--- CREATE OR REPLACE FUNCTION list(INTEGER)
--- RETURNS TABLE (value TEXT) AS $$
---     SELECT "value"
---     FROM "__memory"
---     WHERE "thisKey" = $1 AND "nextKey" IS NOT NULL
---   UNION ALL
---     SELECT *
---     FROM list(0)
--- $$ LANGUAGE SQL;
-
 CREATE OR REPLACE FUNCTION drop(INTEGER, INTEGER)
 RETURNS INTEGER AS $$
 DECLARE
@@ -136,6 +125,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP FUNCTION IF EXISTS toColumn(INTEGER);
+CREATE OR REPLACE FUNCTION toColumn(INTEGER)
+RETURNS TABLE (value TEXT) AS $$
+    SELECT "value" FROM "__memory" WHERE "thisKey" = $1
+  UNION ALL
+    SELECT "value" FROM "__memory" WHERE "thisKey" IN (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = $1);
+$$ LANGUAGE SQL;
+
 -- CREATE OR REPLACE FUNCTION cat(INTEGER, INTEGER)
 -- RETURNS INTEGER AS $$
 -- BEGIN
@@ -150,7 +147,7 @@ SELECT drop(5, 2);
 SELECT init(4);
 SELECT init(4);
 SELECT last(4);
-
+SELECT toColumn(10);
 
 -- SELECT * FROM list(1);
 -- SELECT * FROM list(2);
