@@ -143,11 +143,12 @@ DROP FUNCTION IF EXISTS toColumn(INTEGER);
 -- $$ LANGUAGE plpgsql;
 
 SELECT cons('a',cons('b',cons('c',cons('d',cons('e', NULL)))));
--- SELECT head(4);
--- SELECT tail(5);
--- SELECT drop(5, 2);
--- SELECT init(4);
--- SELECT init(4);
--- SELECT last(4);
-SELECT * FROM toColumn(5);
-SELECT "thisKey" FROM "__memory";
+SELECT head(4);
+SELECT tail(5);
+SELECT drop(5, 2);
+SELECT init(4);
+SELECT init(4);
+SELECT last(4);
+
+-- SELECT * FROM toColumn(5);
+-- SELECT "thisKey" FROM "__memory";
