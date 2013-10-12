@@ -161,14 +161,26 @@ DROP FUNCTION IF EXISTS toColumn(INTEGER);
 --     SELECT "nextKey" FROM "__memory" WHERE "thisKey" = startKey AND "nextKey" IS NOT NULL;
 -- $$ LANGUAGE SQL;
 
--- CREATE OR REPLACE FUNCTION cat(INTEGER, INTEGER)
--- RETURNS INTEGER AS $$
--- BEGIN
--- 
--- END;
--- $$ LANGUAGE plpgsql;
+CREATE OR REPLACE FUNCTION cat(INTEGER, INTEGER)
+RETURNS INTEGER AS $$
+DECLARE
+  first ALIAS FOR $1;
+  firstCopy INTEGER;
+  second ALIAS FOR $2;
+BEGIN
+  SELECT copy(first) INTO firstCopy;
+
+  UPDATE "__memory"
+    SET "nextKey" = second
+    WHERE "thisKey" = last(firstCopy);
+
+  RETURN firstCopy;
+END;
+$$ LANGUAGE plpgsql;
 
 SELECT cons('a',cons('b',cons('c',cons('d',cons('e', NULL)))));
+SELECT cons('foo',cons('bar',cons('baz', NULL)));
+SELECT cons('i',cons('am',cons('a',cons('banana',NULL))));
 SELECT head(4);
 SELECT tail(5);
 SELECT drop(5, 2);
@@ -177,6 +189,7 @@ SELECT init(4);
 SELECT last(4);
 SELECT copy(4);
 SELECT copy(4);
+SELECT cat(8,4);
 
 -- SELECT * FROM toColumn(5);
 -- SELECT "thisKey" FROM "__memory";
