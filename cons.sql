@@ -153,13 +153,17 @@ $$ LANGUAGE plpgsql;
 
 DROP FUNCTION IF EXISTS toColumn(INTEGER);
 
--- http://stackoverflow.com/questions/4279876/plpgsql-function-returns-table
--- CREATE OR REPLACE FUNCTION toColumn(startKey INTEGER)
--- RETURNS TABLE (key INTEGER) AS $$
---     SELECT "thisKey" FROM "__memory" WHERE "thisKey" = startKey
---   UNION ALL
---     SELECT "nextKey" FROM "__memory" WHERE "thisKey" = startKey AND "nextKey" IS NOT NULL;
--- $$ LANGUAGE SQL;
+-- http://stackoverflow.com/questions/14628771/postgres-function-returning-table-not-returning-data-in-columns
+CREATE OR REPLACE FUNCTION toColumn(INTEGER)
+RETURNS TABLE(value TEXT) AS $$
+DECLARE dummy TEXT := '';
+BEGIN
+  CREATE TEMP TABLE tbl AS SELECT dummy LIMIT 0;
+  INSERT INTO tbl VALUES ('lala');
+  INSERT INTO tbl VALUES ('satue');
+  RETURN QUERY SELECT * FROM tbl;
+END
+$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION cat(INTEGER, INTEGER)
 RETURNS INTEGER AS $$
@@ -190,6 +194,6 @@ SELECT last(4);
 SELECT copy(4);
 SELECT copy(4);
 SELECT cat(8,4);
+SELECT * FROM toColumn(5);
 
--- SELECT * FROM toColumn(5);
 -- SELECT "thisKey" FROM "__memory";
