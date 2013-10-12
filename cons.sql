@@ -34,11 +34,3 @@ WITH list(startKey) AS (
 )
 SELECT  *
 FROM    list;
-
-
-WITH RECURSIVE t(startKey) AS (
-    VALUES (2)
-  UNION ALL
-    SELECT startKey+1 FROM t WHERE startKey < 100
-)
-SELECT sum(startKey) FROM t;
