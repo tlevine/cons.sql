@@ -35,4 +35,17 @@ WITH RECURSIVE list(value, nextKey) AS (
     ON     "this"."nextKey" = "next"."thisKey"
 )
 SELECT  *
-FROM    list
+FROM    list;
+
+-- WITH take(value, nextKey, toGo) AS (
+--     SELECT "value", "nextKey",
+--     FROM "__cons"
+--     WHERE "nextKey" IS NULL
+--   UNION ALL
+--     SELECT "value", "nextKey"
+--     FROM "__cons" next
+--     JOIN "__cons" this
+--     ON "this"."nextKey" = "next"."thisKey"
+--     WHERE toGo > 0
+-- )
+
