@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS "__cons";
-CREATE TABLE "__cons" (
+-- DROP TABLE IF EXISTS "__cons";
+CREATE TABLE IF NOT EXISTS "__cons" (
   "thisKey" SERIAL PRIMARY KEY NOT NULL,
   "value" TEXT NOT NULL,
   "nextKey" INTEGER -- REFERENCES "__cons" ("thisKey")
@@ -21,7 +21,7 @@ $$ LANGUAGE plpgsql;
 
 
 
-select cons('hnth', cons('rrrr', cons('abc', cons('ggg', cons('zzz', NULL)))));
+-- select cons('hnth', cons('rrrr', cons('abc', cons('ggg', cons('zzz', NULL)))));
 -- select "a"."value","b"."value" from __cons as a join __cons as b on "a"."nextKey" = "b"."thisKey" where "a"."thisKey" = 2;
 
 WITH RECURSIVE list(value, nextKey) AS (
@@ -29,7 +29,7 @@ WITH RECURSIVE list(value, nextKey) AS (
     FROM   "__cons"
     WHERE  "nextKey" IS NULL
   UNION ALL
-    SELECT 'thn' || ' ' || "this"."value" AS value, "next"."nextKey" AS nextKey
+    SELECT 'thn' || ' ' || "this"."value", "next"."nextKey"
     FROM   "list"   this
     JOIN   "__cons" next
     ON     "this"."nextKey" = "next"."thisKey"
