@@ -109,6 +109,32 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION copy(INTEGER, INTEGER)
+RETURNS INTEGER AS $$
+DECLARE
+  first ALIAS FOR $1;
+  x ALIAS FOR $2;
+  thisValue TEXT;
+  next INTEGER;
+BEGIN
+  SELECT "value" FROM "__memory" WHERE "thisKey" = x INTO thisValue;
+  SELECT "nextKey" FROM "__memory" WHERE "thisKey" = x INTO next;
+  IF next IS NULL
+  THEN
+    RETURN cons(thisValue, NULL);
+  ELSE
+    RETURN cons(thisValue, copy(first, next));
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION copy(INTEGER)
+RETURNS INTEGER AS $$
+BEGIN
+  RETURN copy($1, $1);
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION last(INTEGER)
 RETURNS INTEGER AS $$
 DECLARE
@@ -149,6 +175,8 @@ SELECT drop(5, 2);
 SELECT init(4);
 SELECT init(4);
 SELECT last(4);
+SELECT copy(4);
+SELECT copy(4);
 
 -- SELECT * FROM toColumn(5);
 -- SELECT "thisKey" FROM "__memory";
