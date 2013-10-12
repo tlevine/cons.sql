@@ -125,13 +125,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+VALUES(1);
+CREATE TYPE vals (TEXT);
+VALUES(2);
 DROP FUNCTION IF EXISTS toColumn(INTEGER);
+VALUES(3);
 CREATE OR REPLACE FUNCTION toColumn(INTEGER)
-RETURNS TABLE (value TEXT) AS $$
-    SELECT "value" FROM "__memory" WHERE "thisKey" = $1
-  UNION ALL
-    SELECT "value" FROM "__memory" WHERE "thisKey" IN (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = $1);
+RETURNS setof vals AS $$
+    SELECT "value" FROM "__memory" --WHERE "thisKey" = $1
+--UNION ALL
+--  SELECT "value" FROM "__memory" WHERE "thisKey" IN (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = $1);
 $$ LANGUAGE SQL;
+VALUES(4);
 
 -- CREATE OR REPLACE FUNCTION cat(INTEGER, INTEGER)
 -- RETURNS INTEGER AS $$
@@ -147,4 +152,4 @@ $$ LANGUAGE SQL;
 -- SELECT init(4);
 -- SELECT init(4);
 -- SELECT last(4);
-SELECT toColumn(10);
+SELECT * FROM toColumn(5);
