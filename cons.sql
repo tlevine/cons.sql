@@ -55,15 +55,6 @@ $$ LANGUAGE plpgsql;
 -- END;
 -- $$ LANGUAGE plpgsql;
 
--- CREATE OR REPLACE FUNCTION last(INTEGER)
--- RETURNS INTEGER AS $$
--- DECLARE
---   key ALIAS FOR $1;
--- BEGIN
--- RETURN LASTVAL();
--- END;
--- $$ LANGUAGE plpgsql;
-
 -- DROP FUNCTION take(TAKING);
 -- CREATE TYPE TAKING (INTEGER, INTEGER);
 -- CREATE OR REPLACE FUNCTION take(TAKING)
@@ -105,6 +96,30 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION init(INTEGER, INTEGER)
+RETURNS INTEGER AS $$
+DECLARE
+  first ALIAS FOR $1;
+  x ALIAS FOR $2;
+  next INTEGER;
+BEGIN
+  SELECT "nextKey" FROM "__memory" WHERE "thisKey" = x INTO next;
+  IF next IS NULL
+  THEN
+    RETURN NULL;
+  ELSE
+    RETURN cons((SELECT "value" FROM "__memory" WHERE "thisKey" = x), init(first, next));
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION init(INTEGER)
+RETURNS INTEGER AS $$
+BEGIN
+  RETURN init($1, $1);
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION last(INTEGER)
 RETURNS INTEGER AS $$
 DECLARE
@@ -132,6 +147,8 @@ SELECT cons('a',cons('b',cons('c',cons('d',cons('e', NULL)))));
 SELECT head(4);
 SELECT tail(5);
 SELECT drop(5, 2);
+SELECT init(4);
+SELECT init(4);
 SELECT last(4);
 
 
