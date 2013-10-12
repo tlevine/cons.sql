@@ -1,8 +1,8 @@
--- DROP TABLE IF EXISTS "__cons";
-CREATE TABLE IF NOT EXISTS "__cons" (
+-- DROP TABLE IF EXISTS "__memory";
+CREATE TABLE IF NOT EXISTS "__memory" (
   "thisKey" SERIAL PRIMARY KEY NOT NULL,
   "value" TEXT NOT NULL,
-  "nextKey" INTEGER -- REFERENCES "__cons" ("thisKey")
+  "nextKey" INTEGER -- REFERENCES "__memory" ("thisKey")
 );
 
 CREATE OR REPLACE FUNCTION cons(TEXT, INTEGER)
@@ -11,7 +11,7 @@ DECLARE
   nextKey ALIAS FOR $2;
   value ALIAS FOR $1;
 BEGIN
-  INSERT INTO "__cons" ("value", "nextKey")
+  INSERT INTO "__memory" ("value", "nextKey")
   VALUES (value, nextKey);
 
   -- http://stackoverflow.com/questions/2944297/postgresql-function-for-last-inserted-id
@@ -19,33 +19,47 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION head(INTEGER)
+RETURNS INTEGER AS $$
+DECLARE
+  key ALIAS FOR $1;
+BEGIN
+  INSERT INTO "__memory" 
+  SELECT "value", NULL
+  FROM "__memory"
+  WHERE "thisKey" = key
+RETURN LASTVAL();
+END;
+$$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION tail(INTEGER)
+RETURNS INTEGER AS $$
+DECLARE
+  key ALIAS FOR $1;
+BEGIN
+  INSERT INTO "__memory" 
+  SELECT cons(
+    (SELECT "value" FROM "__memory" WHERE "thisKey" = key),
+    (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = key),
+  )
+RETURN LASTVAL();
+END;
+$$ LANGUAGE plpgsql;
 
--- select cons('hnth', cons('rrrr', cons('abc', cons('ggg', cons('zzz', NULL)))));
--- select "a"."value","b"."value" from __cons as a join __cons as b on "a"."nextKey" = "b"."thisKey" where "a"."thisKey" = 2;
+-- CREATE OR REPLACE FUNCTION init(INTEGER)
+-- RETURNS INTEGER AS $$
+-- DECLARE
+--   key ALIAS FOR $1;
+-- BEGIN
+-- RETURN LASTVAL();
+-- END;
+-- $$ LANGUAGE plpgsql;
 
-WITH RECURSIVE list(value, nextKey) AS (
-    SELECT "value", NULL
-    FROM   "__cons"
-    WHERE  "nextKey" IS NULL
-  UNION ALL
-    SELECT 'thn' || ' ' || "this"."value", "next"."nextKey"
-    FROM   "list"   this
-    JOIN   "__cons" next
-    ON     "this"."nextKey" = "next"."thisKey"
-)
-SELECT  *
-FROM    list;
-
--- WITH take(value, nextKey, toGo) AS (
---     SELECT "value", "nextKey",
---     FROM "__cons"
---     WHERE "nextKey" IS NULL
---   UNION ALL
---     SELECT "value", "nextKey"
---     FROM "__cons" next
---     JOIN "__cons" this
---     ON "this"."nextKey" = "next"."thisKey"
---     WHERE toGo > 0
--- )
-
+-- CREATE OR REPLACE FUNCTION last(INTEGER)
+-- RETURNS INTEGER AS $$
+-- DECLARE
+--   key ALIAS FOR $1;
+-- BEGIN
+-- RETURN LASTVAL();
+-- END;
+-- $$ LANGUAGE plpgsql;
