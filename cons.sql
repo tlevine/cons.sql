@@ -128,12 +128,12 @@ $$ LANGUAGE plpgsql;
 DROP FUNCTION IF EXISTS toColumn(INTEGER);
 
 -- http://stackoverflow.com/questions/4279876/plpgsql-function-returns-table
-CREATE OR REPLACE FUNCTION toColumn(key INTEGER)
-RETURNS TABLE (keys INTEGER) AS $$
-  SELECT "thisKey" FROM "__memory" WHERE "thisKey" = $1
---UNION ALL
---  SELECT "value" FROM "__memory" WHERE "thisKey" IN (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = $1);
-$$ LANGUAGE SQL;
+-- CREATE OR REPLACE FUNCTION toColumn(startKey INTEGER)
+-- RETURNS TABLE (key INTEGER) AS $$
+--     SELECT "thisKey" FROM "__memory" WHERE "thisKey" = startKey
+--   UNION ALL
+--     SELECT "nextKey" FROM "__memory" WHERE "thisKey" = startKey AND "nextKey" IS NOT NULL;
+-- $$ LANGUAGE SQL;
 
 -- CREATE OR REPLACE FUNCTION cat(INTEGER, INTEGER)
 -- RETURNS INTEGER AS $$
