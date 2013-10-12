@@ -24,12 +24,15 @@ $$ LANGUAGE plpgsql;
 select cons('hnth', cons('rrrr', cons('abc', cons('ggg', cons('zzz', NULL)))));
 -- select "a"."value","b"."value" from __cons as a join __cons as b on "a"."nextKey" = "b"."thisKey" where "a"."thisKey" = 2;
 
-WITH list AS (
-  SELECT 'thn' || ' ' || "this"."value" AS values, "next"."nextKey"
-  FROM   "__cons" AS this
-  JOIN   "__cons" AS next
-  ON     "this"."nextKey" = "next"."thisKey"
-  WHERE  "this"."thisKey" = 3
+WITH RECURSIVE list(values, next) AS (
+    SELECT "value", NULL
+    FROM   "__cons"
+    WHERE  "nextKey" IS NULL
+  UNION ALL
+    SELECT 'thn' || ' ' || "this"."value" AS values, "next"."nextKey"
+    FROM   "__cons" AS this
+    JOIN   "__cons" AS next
+    ON     "this"."nextKey" = "next"."thisKey"
 )
 SELECT  *
 FROM    list
