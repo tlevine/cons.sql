@@ -30,8 +30,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- DROP TYPE IF EXISTS NECK;
-CREATE TYPE NECK AS (values TEXT, nextKey INTEGER);
+CREATE TYPE IF NOT EXISTS NECK AS (values TEXT, nextKey INTEGER);
 
 CREATE OR REPLACE FUNCTION _head(TEXT, INTEGER)
 RETURNS NECK AS $$
@@ -42,7 +41,7 @@ BEGIN
   RETURN (
     SELECT
       "prevValues" || ' ' || (SELECT "value" FROM "__cons" WHERE "thisKey" = thisKey),
-      _head(SELECT "nextKey" FROM "__cons" WHERE "thisKey" = thisKey);
+      _head((SELECT "nextKey" FROM "__cons" WHERE "thisKey" = thisKey))
   );
 END;
 $$ LANGUAGE plpgsql;
@@ -65,6 +64,6 @@ $$ LANGUAGE plpgsql;
 
 -- select cons('abc', cons('ggg', cons('zzz', NULL)));
 -- select * from "__cons";
--- select head(2);
+ select head(2);
 -- select last(0);
 -- select last(2);
