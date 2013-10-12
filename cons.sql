@@ -105,10 +105,34 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION last(INTEGER)
+RETURNS INTEGER AS $$
+DECLARE
+  key ALIAS FOR $1;
+  next INTEGER;
+BEGIN
+  SELECT "nextKey" FROM "__memory" WHERE "thisKey" = key INTO next;
+  IF next IS NULL
+  THEN
+    RETURN key;
+  ELSE
+    RETURN last(next);
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- CREATE OR REPLACE FUNCTION cat(INTEGER, INTEGER)
+-- RETURNS INTEGER AS $$
+-- BEGIN
+-- 
+-- END;
+-- $$ LANGUAGE plpgsql;
+
 SELECT cons('a',cons('b',cons('c',cons('d',cons('e', NULL)))));
 SELECT head(4);
 SELECT tail(5);
 SELECT drop(5, 2);
+SELECT last(4);
 
 
 -- SELECT * FROM list(1);
