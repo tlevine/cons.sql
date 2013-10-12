@@ -125,18 +125,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-VALUES(1);
-CREATE TYPE vals (TEXT);
-VALUES(2);
 DROP FUNCTION IF EXISTS toColumn(INTEGER);
-VALUES(3);
-CREATE OR REPLACE FUNCTION toColumn(INTEGER)
-RETURNS setof vals AS $$
-    SELECT "value" FROM "__memory" --WHERE "thisKey" = $1
+
+-- http://stackoverflow.com/questions/4279876/plpgsql-function-returns-table
+CREATE OR REPLACE FUNCTION toColumn(key INTEGER)
+RETURNS TABLE (keys INTEGER) AS $$
+  SELECT "thisKey" FROM "__memory"; --WHERE "thisKey" = $1
 --UNION ALL
 --  SELECT "value" FROM "__memory" WHERE "thisKey" IN (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = $1);
 $$ LANGUAGE SQL;
-VALUES(4);
 
 -- CREATE OR REPLACE FUNCTION cat(INTEGER, INTEGER)
 -- RETURNS INTEGER AS $$
@@ -145,7 +142,7 @@ VALUES(4);
 -- END;
 -- $$ LANGUAGE plpgsql;
 
--- SELECT cons('a',cons('b',cons('c',cons('d',cons('e', NULL)))));
+SELECT cons('a',cons('b',cons('c',cons('d',cons('e', NULL)))));
 -- SELECT head(4);
 -- SELECT tail(5);
 -- SELECT drop(5, 2);
@@ -153,3 +150,4 @@ VALUES(4);
 -- SELECT init(4);
 -- SELECT last(4);
 SELECT * FROM toColumn(5);
+SELECT "thisKey" FROM "__memory";
