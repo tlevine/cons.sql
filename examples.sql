@@ -13,3 +13,5 @@ SELECT cat(8,4);
 SELECT * FROM toColumn(5);
 
 
+SELECT stack();
+SELECT toColumn((SELECT push((SELECT push((SELECT stack()), 'first thing')), 'second thing')));
