@@ -210,9 +210,11 @@ CREATE OR REPLACE FUNCTION push(INTEGER, INTEGER)
 RETURNS INTEGER AS $$
 DECLARE
   stack ALIAS FOR $1;
-  value ALIAS FOR $2;
+  newValue ALIAS FOR $2;
+  oldList INTEGER;
 BEGIN
-  INSERT INTO "__stack" ("list") VALUES (NULL);
+  SELECT "list" FROM "__stack" WHERE "id" = stack INTO oldList;
+  INSERT INTO "__stack" ("list") SELECT cons(newValue, oldList);
   RETURN LASTVAL();
 END;
 $$ LANGUAGE plpgsql;
