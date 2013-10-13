@@ -219,3 +219,21 @@ BEGIN
   RETURN LASTVAL();
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION pop(INTEGER)
+RETURNS INTEGER, TEXT AS $$
+DECLARE
+  oldStack ALIAS FOR $1;
+  oldList INTEGER;
+  newStack INTEGER;
+  newList INTEGER;
+  value TEXT;
+BEGIN
+  SELECT "list" FROM "__stack" WHERE "id" = oldStack INTO oldList;
+  SELECT "value" FROM "__cons" WHERE "thisKey" = oldList INTO value;
+  SELECT tail(oldList) INTO newList;
+  INSERT INTO "__stack" ("list") VALUES (newList);
+  SELECT LASTVAL() INTO newStack;
+  RETURN newStack, value;
+END;
+$$ LANGUAGE plpgsql;
