@@ -220,9 +220,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- http://stackoverflow.com/questions/4651039/can-postgres-stored-functions-have-both-a-return-value-and-out-parameters
-CREATE OR REPLACE FUNCTION unsafe_pop(INTEGER)
-RETURNS setof POPPED AS $$
+CREATE OR REPLACE FUNCTION pop(INTEGER)
+RETURNS INTEGER AS $$
 DECLARE
   oldStack ALIAS FOR $1;
   oldList INTEGER;
@@ -235,6 +234,19 @@ BEGIN
   SELECT tail(oldList) INTO newList;
   INSERT INTO "__stack" ("list") VALUES (newList);
   SELECT LASTVAL() INTO newStack;
-  RETURN (newStack, value);
+  RETURN newStack;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION peek(INTEGER)
+RETURNS TEXT AS $$
+BEGIN
+  RETURN (
+    SELECT "value"
+    FROM "__stack"
+    JOIN "__cons"
+    ON "__stack"."id" = $1
+    WHERE "__stack"."id" = "__cons"."list"
+  );
 END;
 $$ LANGUAGE plpgsql;
