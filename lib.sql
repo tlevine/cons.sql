@@ -165,6 +165,7 @@ DECLARE
   dummy TEXT := '';
   key INTEGER := $1;
 BEGIN
+  DROP TABLE IF EXISTS tbl;
   CREATE TEMP TABLE tbl AS SELECT dummy LIMIT 0;
   WHILE key IS NOT NULL LOOP
     INSERT INTO tbl SELECT "__cons"."value" FROM "__cons" WHERE "thisKey" = key;
