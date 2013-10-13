@@ -246,7 +246,7 @@ BEGIN
     FROM "__stack"
     JOIN "__cons"
     ON "__stack"."id" = $1
-    WHERE "__stack"."id" = "__cons"."list"
+    WHERE "__stack"."list" = "__cons"."thisKey"
   );
 END;
 $$ LANGUAGE plpgsql;
