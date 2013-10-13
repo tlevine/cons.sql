@@ -151,8 +151,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP FUNCTION IF EXISTS toColumn(INTEGER);
-
 -- http://stackoverflow.com/questions/14628771/postgres-function-returning-table-not-returning-data-in-columns
 CREATE OR REPLACE FUNCTION toColumn(INTEGER)
 RETURNS TABLE(value TEXT) AS $$
@@ -167,6 +165,10 @@ BEGIN
   END LOOP;
   RETURN QUERY SELECT * FROM tbl;
 END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION fromColumn(INTEGER)
+RETURNS TABLE(value TEXT) AS $$
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION cat(INTEGER, INTEGER)
