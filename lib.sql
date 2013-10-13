@@ -1,8 +1,8 @@
-DROP TABLE IF EXISTS "__memory";
-CREATE TABLE IF NOT EXISTS "__memory" (
+DROP TABLE IF EXISTS "__cons";
+CREATE TABLE IF NOT EXISTS "__cons" (
   "thisKey" SERIAL PRIMARY KEY NOT NULL,
   "value" TEXT NOT NULL,
-  "nextKey" INTEGER -- REFERENCES "__memory" ("thisKey")
+  "nextKey" INTEGER -- REFERENCES "__cons" ("thisKey")
 );
 
 CREATE OR REPLACE FUNCTION cons(TEXT)
@@ -18,7 +18,7 @@ DECLARE
   nextKey ALIAS FOR $2;
   value ALIAS FOR $1;
 BEGIN
-  INSERT INTO "__memory" ("value", "nextKey")
+  INSERT INTO "__cons" ("value", "nextKey")
   VALUES (value, nextKey);
 
   -- http://stackoverflow.com/questions/2944297/postgresql-function-for-last-inserted-id
@@ -31,9 +31,9 @@ RETURNS INTEGER AS $$
 DECLARE
   key ALIAS FOR $1;
 BEGIN
-  INSERT INTO "__memory" ("value","nextKey")
+  INSERT INTO "__cons" ("value","nextKey")
     SELECT "value", NULL
-    FROM "__memory"
+    FROM "__cons"
     WHERE "thisKey" = key;
   RETURN LASTVAL();
 END;
@@ -46,8 +46,8 @@ DECLARE
   result INTEGER;
 BEGIN
   SELECT cons(
-    (SELECT "value" FROM "__memory" WHERE "thisKey" = key),
-    (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = key)
+    (SELECT "value" FROM "__cons" WHERE "thisKey" = key),
+    (SELECT "nextKey" FROM "__cons" WHERE "thisKey" = key)
   ) INTO result;
   RETURN result;
 END;
@@ -70,8 +70,8 @@ $$ LANGUAGE plpgsql;
 --   inputs ALIAS FOR $1;
 --   result TAKING;
 -- BEGIN
---   SELECT cons( (SELECT "value" FROM "__memory" WHERE "thisKey" = key),
---                (SELECT "nextKey" FROM "__memory" WHERE "thisKey" = key))
+--   SELECT cons( (SELECT "value" FROM "__cons" WHERE "thisKey" = key),
+--                (SELECT "nextKey" FROM "__cons" WHERE "thisKey" = key))
 --   INTO result.key;
 --   RETURN (result, toGo - 1);
 -- END;
@@ -85,7 +85,7 @@ DECLARE
 BEGIN
   IF toDrop > 0
   THEN
-    RETURN drop((SELECT "nextKey" FROM "__memory" WHERE "thisKey" = key), toDrop - 1);
+    RETURN drop((SELECT "nextKey" FROM "__cons" WHERE "thisKey" = key), toDrop - 1);
   ELSE
     RETURN key;
   END IF;
@@ -99,12 +99,12 @@ DECLARE
   x ALIAS FOR $2;
   next INTEGER;
 BEGIN
-  SELECT "nextKey" FROM "__memory" WHERE "thisKey" = x INTO next;
+  SELECT "nextKey" FROM "__cons" WHERE "thisKey" = x INTO next;
   IF next IS NULL
   THEN
     RETURN NULL;
   ELSE
-    RETURN cons((SELECT "value" FROM "__memory" WHERE "thisKey" = x), init(first, next));
+    RETURN cons((SELECT "value" FROM "__cons" WHERE "thisKey" = x), init(first, next));
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -124,8 +124,8 @@ DECLARE
   thisValue TEXT;
   next INTEGER;
 BEGIN
-  SELECT "value" FROM "__memory" WHERE "thisKey" = x INTO thisValue;
-  SELECT "nextKey" FROM "__memory" WHERE "thisKey" = x INTO next;
+  SELECT "value" FROM "__cons" WHERE "thisKey" = x INTO thisValue;
+  SELECT "nextKey" FROM "__cons" WHERE "thisKey" = x INTO next;
   IF next IS NULL
   THEN
     RETURN cons(thisValue, NULL);
@@ -148,7 +148,7 @@ DECLARE
   key ALIAS FOR $1;
   next INTEGER;
 BEGIN
-  SELECT "nextKey" FROM "__memory" WHERE "thisKey" = key INTO next;
+  SELECT "nextKey" FROM "__cons" WHERE "thisKey" = key INTO next;
   IF next IS NULL
   THEN
     RETURN key;
@@ -167,8 +167,8 @@ DECLARE
 BEGIN
   CREATE TEMP TABLE tbl AS SELECT dummy LIMIT 0;
   WHILE key IS NOT NULL LOOP
-    INSERT INTO tbl SELECT "__memory"."value" FROM "__memory" WHERE "thisKey" = key;
-    SELECT "nextKey" FROM "__memory" WHERE "thisKey" = key INTO key;
+    INSERT INTO tbl SELECT "__cons"."value" FROM "__cons" WHERE "thisKey" = key;
+    SELECT "nextKey" FROM "__cons" WHERE "thisKey" = key INTO key;
   END LOOP;
   RETURN QUERY SELECT * FROM tbl;
 END
@@ -183,10 +183,24 @@ DECLARE
 BEGIN
   SELECT copy(first) INTO firstCopy;
 
-  UPDATE "__memory"
+  UPDATE "__cons"
     SET "nextKey" = second
     WHERE "thisKey" = last(firstCopy);
 
   RETURN firstCopy;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TABLE IF EXISTS "__stack";
+CREATE TABLE IF NOT EXISTS "__stack" (
+  "id" SERIAL PRIMARY KEY NOT NULL,
+  "list" INTEGER
+);
+
+CREATE OR REPLACE FUNCTION stack()
+RETURNS INTEGER AS $$
+BEGIN
+  INSERT INTO "__stack" ("list") VALUES (NULL);
+  RETURN LASTVAL();
 END;
 $$ LANGUAGE plpgsql;
