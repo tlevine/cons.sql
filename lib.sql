@@ -53,30 +53,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- CREATE OR REPLACE FUNCTION init(INTEGER)
--- RETURNS INTEGER AS $$
--- DECLARE
---   key ALIAS FOR $1;
--- BEGIN
--- RETURN LASTVAL();
--- END;
--- $$ LANGUAGE plpgsql;
-
--- DROP FUNCTION take(TAKING);
--- CREATE TYPE TAKING (INTEGER, INTEGER);
--- CREATE OR REPLACE FUNCTION take(TAKING)
--- RETURNS TAKING AS $$
--- DECLARE
---   inputs ALIAS FOR $1;
---   result TAKING;
--- BEGIN
---   SELECT cons( (SELECT "value" FROM "__cons" WHERE "thisKey" = key),
---                (SELECT "nextKey" FROM "__cons" WHERE "thisKey" = key))
---   INTO result.key;
---   RETURN (result, toGo - 1);
--- END;
--- $$ LANGUAGE plpgsql;
-
 CREATE OR REPLACE FUNCTION drop(INTEGER, INTEGER)
 RETURNS INTEGER AS $$
 DECLARE
