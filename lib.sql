@@ -241,3 +241,13 @@ BEGIN
   );
 END;
 $$ LANGUAGE plpgsql;
+
+DROP TABLE IF EXISTS "__queue";
+CREATE TABLE IF NOT EXISTS "__queue" (
+  "id" SERIAL PRIMARY KEY NOT NULL,
+  "left" INTEGER,
+  "right" INTEGER,
+  FOREIGN KEY ("left") REFERENCES "__stack" ("id"),
+  FOREIGN KEY ("right") REFERENCES "__stack" ("id")
+);
+
