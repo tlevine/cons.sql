@@ -120,6 +120,23 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION last(INTEGER)
+RETURNS TEXT AS $$
+DECLARE
+  key INTEGER;
+  result TEXT;
+BEGIN
+  SELECT lastkey($1) INTO key;
+
+  SELECT "value"
+  FROM "__cons"
+  WHERE "thisKey" = key
+  INTO result;
+
+  RETURN result;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION lastkey(INTEGER)
 RETURNS INTEGER AS $$
 DECLARE
   key ALIAS FOR $1;
@@ -130,7 +147,7 @@ BEGIN
   THEN
     RETURN key;
   ELSE
-    RETURN last(next);
+    RETURN lastkey(next);
   END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -163,7 +180,7 @@ BEGIN
 
   UPDATE "__cons"
     SET "nextKey" = second
-    WHERE "thisKey" = last(firstCopy);
+    WHERE "thisKey" = lastkey(firstCopy);
 
   RETURN firstCopy;
 END;
