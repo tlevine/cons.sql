@@ -27,15 +27,16 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION head(INTEGER)
-RETURNS INTEGER AS $$
+RETURNS TEXT AS $$
 DECLARE
   key ALIAS FOR $1;
+  result TEXT;
 BEGIN
-  INSERT INTO "__cons" ("value","nextKey")
-    SELECT "value", NULL
-    FROM "__cons"
-    WHERE "thisKey" = key;
-  RETURN LASTVAL();
+  SELECT "value", NULL
+  FROM "__cons"
+  WHERE "thisKey" = key
+  INTO result;
+  RETURN result;
 END;
 $$ LANGUAGE plpgsql;
 
