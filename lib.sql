@@ -46,10 +46,7 @@ DECLARE
   key ALIAS FOR $1;
   result INTEGER;
 BEGIN
-  SELECT cons(
-    (SELECT "value" FROM "__cons" WHERE "thisKey" = key),
-    (SELECT "nextKey" FROM "__cons" WHERE "thisKey" = key)
-  ) INTO result;
+  SELECT "nextKey" FROM "__cons" WHERE "thisKey" = key INTO result;
   RETURN result;
 END;
 $$ LANGUAGE plpgsql;
