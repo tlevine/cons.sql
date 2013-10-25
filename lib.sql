@@ -259,6 +259,30 @@ DECLARE
   newQueue INTEGER;
   oldLeft INTEGER;
   oldRight INTEGER;
+  newRight INTEGER;
+BEGIN
+  SELECT "left", "right"
+  FROM "__queue"
+  WHERE "id" = oldQueue
+  INTO oldLeft, oldRight;
+
+  SELECT push(oldRight, newValue) INTO newRight;
+
+  INSERT INTO "__queue" ("left","right")
+  VALUES (oldLeft, newRight);
+
+  RETURN LASTVAL();
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION dequeue(INTEGER, TEXT)
+RETURNS INTEGER AS $$
+DECLARE
+  newValue ALIAS FOR $2;
+  oldQueue ALIAS FOR $1;
+  newQueue INTEGER;
+  oldLeft INTEGER;
+  oldRight INTEGER;
   newLeft INTEGER;
   newRight INTEGER;
 BEGIN
