@@ -264,23 +264,35 @@ DECLARE
 BEGIN
   SELECT "left", "right"
   FROM "__queue"
-  WHERE "id" = newQueue
+  WHERE "id" = oldQueue
   INTO oldLeft, oldRight;
 
   IF (SELECT peek(oldLeft)) IS NULL
   THEN
-    SELECT queue() INTO newLeft;
-    SELECT queue() INTO newRight;
+    SELECT stack() INTO newLeft;
+    SELECT stack() INTO newRight;
     WHILE (SELECT peek(oldRight)) IS NOT NULL LOOP
       SELECT push(newLeft, peek(oldRight)) INTO newLeft;
       SELECT pop(oldRight) INTO oldRight;
     END LOOP;
   ELSE
     SELECT oldLeft INTO newLeft;
-    SELECT push(oldRight, newValue) INTO newRight;
   END IF;
-  INSERT INTO "__stack" ("left","right")
+
+  SELECT push(oldRight, newValue) INTO newRight;
+
+  INSERT INTO "__queue" ("left","right")
   VALUES (newLeft, newRight);
+
   RETURN LASTVAL();
 END;
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION queue()
+RETURNS INTEGER AS $$
+BEGIN
+  INSERT INTO "__queue" ("left","right") VALUES (NULL,NULL);
+  RETURN LASTVAL();
+END;
+$$ LANGUAGE plpgsql;
+
